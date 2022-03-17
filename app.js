@@ -10,6 +10,13 @@ var usersRouter = require('./routes/users');
 //Next, we create the app object using our imported express module, and then use it to set up the view (template) engine. 
 var app = express();
 
+//this code creates the default connection to the database and binds to the error event (so that errors will be printed to the console)
+var mongoose = require('mongoose');
+var mongoDB = 'mongodb+srv://dstock:itrAP9U644YBb9Q2@cluster0.yfo6e.mongodb.net/local_library?retryWrites=true&w=majority'
+mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true});
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error'))
+
 // view engine setup
 //There are two parts to setting up the engine. First, we set the 'views' value to specify the folder where the templates will be stored (in this case the subfolder /views). Then we set the 'view engine' value to specify the template library (in this case "pug").
 

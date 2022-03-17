@@ -13,6 +13,10 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
+router.get('/cool', function(req, res, next) {
+  res.send("You are so cool!")
+})
+
 //The matching pattern is the route specified when the module is imported ('/users') plus whatever is defined in this file ('/'). In other words, this route will be used when a URL of /users/ is received.
 
 module.exports = router;

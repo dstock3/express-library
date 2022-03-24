@@ -43,7 +43,11 @@ exports.book_list = function(req, res, next) {
       .populate('author')
       .exec(function (err, list_books) {
         if (err) { return next(err); }
+        
         //Successful, so render
+
+        //The title and book_list wil be employed in the book_list.pug template.
+        
         res.render('book_list', { title: 'Book List', book_list: list_books });
       });
   

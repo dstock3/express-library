@@ -1,5 +1,7 @@
+//Import the mongoose module
 var mongoose = require('mongoose')
 
+//Define a schema
 var Schema = mongoose.Schema;
 
 var AuthorSchema = new Schema(
@@ -29,6 +31,8 @@ AuthorSchema
 })
 
 // Virtual for author's lifespan
+//Virtual properties are document properties that you can get and set but that do not get persisted to MongoDB
+
 AuthorSchema.virtual('lifespan').get(function() {
     var lifetime_string = '';
     if (this.date_of_birth) {
@@ -42,6 +46,7 @@ AuthorSchema.virtual('lifespan').get(function() {
   });
   
 // Virtual for author's URL
+//We will use a virtual property in the library to define a unique URL for each model record using a path and the record's _id value.
 AuthorSchema
 .virtual('url')
 .get(function () {

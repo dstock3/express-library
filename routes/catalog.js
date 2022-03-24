@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+//The module requires Express and then uses it to create a Router object. The routes are all set up on the router, which is then exported
+
 // Require controller modules.
 var book_controller = require('../controllers/bookController');
 var author_controller = require('../controllers/authorController');

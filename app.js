@@ -7,6 +7,12 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+//Import routes for "catalog" area of site
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var catalogRouter = require('./routes/catalog');  //Import routes for "catalog" area of site
+
+
 //Next, we create the app object using our imported express module, and then use it to set up the view (template) engine. 
 var app = express();
 
@@ -40,6 +46,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+// Add catalog routes to middleware chain.
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/catalog', catalogRouter);  
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

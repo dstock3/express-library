@@ -36,6 +36,8 @@ exports.index = function(req, res) {
 // Display list of all Books.
 exports.book_list = function(req, res, next) {
 
+    //The method uses the model's find() function to return all Book objects, selecting to return only the title and author as we don't need the other fields (it will also return the _id and virtual fields), and then sorts the results by the title alphabetically using the sort() method. Here we also call populate() on Book, specifying the author field—this will replace the stored book author id with the full author details.
+
     Book.find({}, 'title author')
       .sort({title : 1})
       .populate('author')

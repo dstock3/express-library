@@ -1,5 +1,6 @@
 //Import the mongoose module
 var mongoose = require('mongoose')
+const { DateTime } = require("luxon");
 
 //Define a schema
 var Schema = mongoose.Schema;
@@ -13,22 +14,21 @@ var AuthorSchema = new Schema(
     }
 );
 
-//Virtual for author's full ame
-
+// Virtual for author's full name
 AuthorSchema
 .virtual('name')
-.get(function() {
-    //to avoid errors in cases where the author does not have either a family name or first name, we want to make sure we handle the exception by returnig an empty string for that case
-    
-    var fullname= '';
-    if(this.first_name && this.family_name) {
-        fullame = this.family_name + ',' + this.first_name
+.get(function () {
+    // To avoid errors in cases where an author does not have either a family name or first name
+    // We want to make sure we handle the exception by returning an empty string for that case
+    var fullname = '';
+    if (this.first_name && this.family_name) {
+        fullname = this.family_name + ', ' + this.first_name
     }
-    if (!this.first_name || this.family_name) {
+    if (!this.first_name || !this.family_name) {
         fullname = '';
     }
-    return fullname
-})
+    return fullname;
+});
 
 // Virtual for author's lifespan
 //Virtual properties are document properties that you can get and set but that do not get persisted to MongoDB
@@ -52,6 +52,26 @@ AuthorSchema
 .get(function () {
     return '/catalog/author/' + this._id;
 });
+
+AuthorSchema
+.virtual('formatted_birthday')
+.get(function () {
+    if (this.date_of_birth) {
+        return DateTime.fromJSDate(this.date_of_birth).toLocaleString(DateTime.DATE_MED)
+    } else {
+        return ''
+    }
+});
+
+AuthorSchema.virtual('formatted_deathday')
+.get(function () {
+    if (this.date_of_death) {
+        return DateTime.fromJSDate(this.date_of_death).toLocaleString(DateTime.DATE_MED)
+    } else {
+        return ''
+    }
+});
+
 
 //Export model
 module.exports = mongoose.model('Author', AuthorSchema);

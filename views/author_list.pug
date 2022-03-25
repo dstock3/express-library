@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  h1= title
+
+  ul
+    each author in author_list
+      li
+        a(href=author.url) #{author.name}
+
+        div(class="author-lifespan")
+            if author.date_of_birth
+                span #{author.formatted_birthday}
+            if author.date_of_death
+                span - #{author.formatted_deathday}
+
+    else
+      li There are no authors.

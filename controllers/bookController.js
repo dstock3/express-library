@@ -55,9 +55,36 @@ exports.book_list = function(req, res, next) {
   
 
 // Display detail page for a specific book.
-exports.book_detail = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book detail: ' + req.params.id);
+exports.book_detail = function(req, res, next) {
+
+    //The method uses async.parallel() to find the Book and its associated copies (BookInstances) in parallel. The approach is exactly the same as described for the Genre detail page. Since the key 'title' is used to give name to the webpage (as defined in the header in 'layout.pug'), this time we are passing results.book.title while rendering the webpage.
+
+    async.parallel({
+        book: function(callback) {
+
+            Book.findById(req.params.id)
+              .populate('author')
+              .populate('genre')
+              .exec(callback);
+        },
+        book_instance: function(callback) {
+
+          BookInstance.find({ 'book': req.params.id })
+          .exec(callback);
+        },
+    }, function(err, results) {
+        if (err) { return next(err); }
+        if (results.book==null) { // No results.
+            var err = new Error('Book not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Successful, so render.
+        res.render('book_detail', { title: results.book.title, book: results.book, book_instances: results.book_instance } );
+    });
+
 };
+
 
 // Display book create form on GET.
 exports.book_create_get = function(req, res) {

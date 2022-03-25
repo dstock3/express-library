@@ -1,4 +1,6 @@
 var Author = require('../models/author');
+var async = require('async');
+var Book = require('../models/book');
 
 //The module first requires the model that we'll later be using to access and update our data. It then exports functions for each of the URLs we wish to handle (the create, update and delete operations use forms, and hence also have additional methods for handling form post requests 
 
@@ -26,8 +28,31 @@ exports.author_list = function(req, res, next) {
   
 //Display detail page for a specific Author
 //NOTE: If a controller function is expected to receive path parameters, these are output in the message string 
-exports.author_detail = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author detail ' + req.params.id);
+// Display detail page for a specific Author.
+exports.author_detail = function(req, res, next) {
+
+    //The method uses async.parallel() to query the Author and their associated Book instances in parallel, with the callback rendering the page when (if) both requests complete successfully. The approach is exactly the same as described for the Genre detail page above.
+
+    async.parallel({
+        author: function(callback) {
+            Author.findById(req.params.id)
+              .exec(callback)
+        },
+        authors_books: function(callback) {
+          Book.find({ 'author': req.params.id },'title summary')
+          .exec(callback)
+        },
+    }, function(err, results) {
+        if (err) { return next(err); } // Error in API usage.
+        if (results.author==null) { // No results.
+            var err = new Error('Author not found');
+            err.status = 404;
+            return next(err);
+        }
+        // Successful, so render.
+        res.render('author_detail', { title: 'Author Detail', author: results.author, author_books: results.authors_books } );
+    });
+
 };
 
 //Display Author create form on GET

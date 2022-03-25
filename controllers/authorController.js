@@ -1,6 +1,7 @@
 var Author = require('../models/author');
 var async = require('async');
 var Book = require('../models/book');
+const { body,validationResult } = require('express-validator');
 
 //The module first requires the model that we'll later be using to access and update our data. It then exports functions for each of the URLs we wish to handle (the create, update and delete operations use forms, and hence also have additional methods for handling form post requests 
 

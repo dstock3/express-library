@@ -111,7 +111,7 @@ exports.bookinstance_delete_get = function(req, res, next) {
             BookInstance.findById(req.params.id).exec(callback)
         },
     }, function(err, results) {
-        //If findById() returns no results the author is not in the database. In this case there is nothing to delete, so we immediately render the list of all book instances.
+        //If findById() returns no results the book instance is not in the database. In this case there is nothing to delete, so we immediately render the list of all book instances.
         if (err) { return next(err); }
         if (results.bookinstance==null) {
             res.redirect('/catalog/bookinstances');

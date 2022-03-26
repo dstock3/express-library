@@ -184,13 +184,48 @@ exports.book_create_post = [
 ];
 
 // Display book delete form on GET.
-exports.book_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book delete GET');
+exports.book_delete_get = function(req, res, next) {
+    //The controller gets the id of the Book to be deleted from the URL parameter (req.params.id). It uses the async.parallel() method to get the book record and all book instances in parallel. When both operations have completed it renders the book_delete.pug view, passing variables for the title, book, and book instances.
+    async.parallel({
+        book: function(callback) {
+            Book.findById(req.params.id).exec(callback)
+        },
+        bookinstances: function(callback) {
+            BookInstance.find({ 'book': req.params.id }).exec(callback);
+        },
+    }, function(err, results) {
+        if (err) { return next(err); }
+        if (results.book==null) { // No results.
+            res.redirect('/catalog/books');
+        }
+        res.render('book_delete', { title: 'Delete Book', book: results.book, bookinstances: results.bookinstances } );
+    })
 };
 
 // Handle book delete on POST.
-exports.book_delete_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book delete POST');
+exports.book_delete_post = function(req, res, next) {
+    async.parallel({
+        book: function(callback) {
+            Book.findById(req.params.id).exec(callback)
+        },
+        bookinstances: function(callback) {
+            BookInstance.find({ 'book': req.params.id }).exec(callback);
+        },
+    }, function(err, results) {
+        if (err) { return next(err); }
+        if (results.bookinstances.length > 0) {
+            // Book has book instances. Render in same way as for GET route.
+            res.render('book_delete', { title: 'Delete Book', book: results.book, bookinstances: results.bookinstances } );
+            return;
+        } else {
+            // Book has no book instances. Delete object and redirect to the list of authors.
+            Book.findByIdAndRemove(req.body.bookid, function deleteBook(err) {
+                if (err) { return next(err); }
+                // Success - go to book list
+                res.redirect('/catalog/books')
+            })
+        }
+    })
 };
 
 // Display book update form on GET.

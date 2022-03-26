@@ -1,5 +1,6 @@
 var BookInstance = require('../models/bookinstance');
 var Book = require('../models/book');
+var async = require('async');
 
 const { body,validationResult } = require('express-validator');
 
@@ -103,13 +104,34 @@ exports.bookinstance_create_post = [
 
 
 // Display BookInstance delete form on GET.
-exports.bookinstance_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance delete GET');
+exports.bookinstance_delete_get = function(req, res, next) {
+    //The controller gets the id of the book instance to be deleted from the URL parameter (req.params.id). It uses the async.parallel() method to get the book instance record. When the operation has been executed, it renders the bookinstance_delete.pug view, passing variables for the title and the specific bookinstance.
+    async.parallel({
+        bookinstance: function(callback) {
+            BookInstance.findById(req.params.id).exec(callback)
+        },
+    }, function(err, results) {
+        //If findById() returns no results the author is not in the database. In this case there is nothing to delete, so we immediately render the list of all book instances.
+        if (err) { return next(err); }
+        if (results.bookinstance==null) {
+            res.redirect('/catalog/bookinstances');
+        }
+        res.render('bookinstance_delete', {title: 'Delete Book Instance', bookinstance: results.bookinstance})
+    })
 };
 
 // Handle BookInstance delete on POST.
-exports.bookinstance_delete_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: BookInstance delete POST');
+exports.bookinstance_delete_post = function(req, res, next) {
+    async.parallel({
+        bookinstance: function(callback) {
+            BookInstance.findById(req.body.bookinstanceid).exec(callback)
+            BookInstance.findByIdAndRemove(req.body.bookinstanceid, function deleteBookInstance(err) {
+                if (err) { return next(err); }
+                // Success - go to bookinstance list
+                res.redirect('/catalog/bookinstances')
+            })
+        }
+    })
 };
 
 // Display BookInstance update form on GET.

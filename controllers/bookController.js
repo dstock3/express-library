@@ -206,10 +206,10 @@ exports.book_delete_get = function(req, res, next) {
 exports.book_delete_post = function(req, res, next) {
     async.parallel({
         book: function(callback) {
-            Book.findById(req.params.id).exec(callback)
+            Book.findById(req.body.bookid).exec(callback)
         },
         bookinstances: function(callback) {
-            BookInstance.find({ 'book': req.params.id }).exec(callback);
+            BookInstance.find({ 'book': req.body.bookid }).exec(callback);
         },
     }, function(err, results) {
         if (err) { return next(err); }

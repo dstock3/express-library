@@ -118,13 +118,49 @@ exports.genre_create_post =  [
   ];
   
 // Display Genre delete form on GET.
-exports.genre_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre delete GET');
+exports.genre_delete_get = function(req, res, next) {
+  //The controller gets the id of the Genre to be deleted from the URL parameter (req.params.id). It uses the async.parallel() method to get the genre record and all associated books in parallel. When both operations have completed it renders the genre_delete.pug view, passing variables for the title, genre, and book(s).
+  async.parallel({
+      genre: function(callback) {
+          Genre.findById(req.params.id).exec(callback)
+      },
+      genre_books: function(callback) {
+          Book.find({ 'genre': req.params.id }).exec(callback);
+      },
+  }, function(err, results) {
+      if (err) { return next(err); }
+      if (results.genre==null) { // No results.
+          res.redirect('/catalog/genres');
+      }
+      res.render('genre_delete', { title: 'Delete Genre', genre: results.genre, genre_books: results.genre_books } );
+  })
 };
+
 
 // Handle Genre delete on POST.
 exports.genre_delete_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Genre delete POST');
+  async.parallel({
+    genre: function(callback) {
+        Genre.findById(req.body.genreid).exec(callback)
+    },
+    genre_books: function(callback) {
+        Book.find({ 'genre': req.body.genreid }).exec(callback);
+    },
+}, function(err, results) {
+    if (err) { return next(err); }
+    if (results.genre_books.length > 0) {
+      // Genre has associated Books. Render in same way as for GET route.
+      res.render('genre_delete', { title: 'Delete Genre', genre: results.genre, genre_books: results.genre_books } );
+      return;
+    } else {
+      // Genre has no associated books. Delete object and redirect to the list of genres.
+      Genre.findByIdAndRemove(req.body.genreid, function deleteGenre(err) {
+          if (err) { return next(err); }
+          // Success - go to book list
+          res.redirect('/catalog/genres')
+      })
+    }
+  })
 };
 
 // Display Genre update form on GET.

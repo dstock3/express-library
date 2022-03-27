@@ -233,7 +233,7 @@ exports.book_update_get = function(req, res, next) {
 
     // Get book, authors and genres for form.
 
-    //The controller gets the id of the Book to be updated from the URL parameter (req.params.id). It uses the async.parallel() method to get the specified Book record (populating its genre and author fields) and lists of all the Author and Genre objects.
+    //The controller gets the id of the Book to be updated from the URL parameter (req.params.id). It uses the async.parallel() method to get the specified Book record (populating its genre and author fields) and lists off all the Author and Genre objects.
     async.parallel({
         book: function(callback) {
             Book.findById(req.params.id).populate('author').populate('genre').exec(callback);

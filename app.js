@@ -1,3 +1,5 @@
+var compression = require('compression');
+var helmet = require('helmet');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -15,6 +17,9 @@ var catalogRouter = require('./routes/catalog');  //Import routes for "catalog" 
 
 //Next, we create the app object using our imported express module, and then use it to set up the view (template) engine. 
 var app = express();
+
+app.use(compression()); //Compress all routes
+app.use(helmet()); //Compress all routes
 
 //this code creates the default connection to the database and binds to the error event (so that errors will be printed to the console)
 //Import the mongoose module

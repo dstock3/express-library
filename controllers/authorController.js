@@ -165,13 +165,50 @@ exports.author_delete_post = function(req, res, next) {
 };
 
 // Display Author update form on GET.
-exports.author_update_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author update GET');
+exports.author_update_get = function (req, res, next) {
+    Author.findById(req.params.id, function (err, author) {
+        if (err) { return next(err); }
+        if (author == null) { 
+            var err = new Error('Author not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        res.render('author_form', { title: 'Update Author', author: author });
+
+    });
 };
 
 // Handle Author update on POST.
-exports.author_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Author update POST');
-};
+exports.author_update_post = [
+    body('first_name').trim().isLength({ min: 1 }).escape().withMessage('First name must be specified.'),
+    body('family_name').trim().isLength({ min: 1 }).escape().withMessage('Family name must be specified.'),
+    body('date_of_birth', 'Invalid birth date').optional({ checkFalsy: true }).isISO8601().toDate(),
+    body('date_of_death', 'Invalid death date').optional({ checkFalsy: true }).isISO8601().toDate(),
+    (req, res, next) => {
+        const errors = validationResult(req);
 
+        var author = new Author(
+            {
+                first_name: req.body.first_name,
+                family_name: req.body.family_name,
+                date_of_birth: req.body.date_of_birth,
+                date_of_death: req.body.date_of_death,
+                _id: req.params.id
+            }
+        );
 
+        if (!errors.isEmpty()) {
+            res.render('author_form', { title: 'Update Author', errors: errors.array(), author: author });
+            return;
+        }
+        else {
+
+            Author.findByIdAndUpdate(req.params.id, author, {}, function (err, thisauthor) {
+                if (err) { return next(err); }
+
+                res.redirect(thisauthor.url);
+            });
+        }
+    }
+];
